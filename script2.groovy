@@ -1,4 +1,4 @@
-// 2nd jenkinsfile --Jenkinsfile2
+// uses --Jenkinsfile2, Jenkinsfile3
 
 def buildApp(){
     echo "building the app..."
