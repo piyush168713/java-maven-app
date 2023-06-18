@@ -25,13 +25,15 @@ pipeline {
                 }
             }
         }
-        stage("build image") {
+        stage("build and push image") {
             steps {
                 script {
-                    echo "building image"
+                    echo "building and pushing image"
                     // gv.buildImage()
                     // buildImage()
                     buildImage 'piyush168713/demo-app:jma-2.7'
+                    dockerLogin()
+                    dockerPush 'piyush168713/demo-app:jma-2.7'
                 }
             }
         }
