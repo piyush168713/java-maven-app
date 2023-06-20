@@ -19,6 +19,7 @@ pipeline {
             steps {
                 script {
                     echo "building jar"
+                    echo "Testing the integration..."
                     gv.buildJar()
                 }
             }
