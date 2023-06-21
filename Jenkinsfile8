@@ -57,7 +57,7 @@ pipeline {
                         sh 'git config --global user.email "20bcs9107@cuchd.in"'
                         sh 'git config --global user.name "piyush168713"'
 
-                        sh 'git status'
+                        // sh 'git status'
                         sh 'git branch'
                         sh 'git config --list'
 
