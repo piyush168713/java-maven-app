@@ -1,4 +1,4 @@
-// used in lecture 102 for integrating software versioning
+// used in lecture 102 for integrating automatic software versioning
 
 pipeline {
     agent any
