@@ -66,3 +66,6 @@ pipeline {
 }
 
 // copy the file to server so that these file directly executed on ec2. i.e. server-cmds-1.sh, docker-compose.yaml
+
+// docker-compose file
+//  image: ${IMAGE}
