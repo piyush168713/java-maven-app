@@ -1,4 +1,7 @@
-// L- 112
+// L- 112 - Deploy newly build image to ec2 instance
+
+// creating docker image of java-maven-app, push to docker hub and then go to ec2 instance and then login to docker hub,
+// pull the docker image to ec2 instance and then run.
 
 #!/usr/bin/env groovy
 // @Library('jenkins-shared-library')
@@ -15,35 +18,36 @@ pipeline {
     tools {
         maven 'maven-3.9'
     }
+    environment {
+        IMAGE_NAME = 'piyush168713/demo-app:1.0'
+    }
     stages {
-        stage("init") {
+        stage('build app') {
             steps {
                 script {
-                    gv = load "script3.groovy"
-                }
-            }
-        }
-        stage("build jar") {
-            steps {
-                script {
-                    echo "building jar"
+                    echo "building application jar..."
                     buildJar()
                 }
             }
         }
-        stage("build image") {
+        stage('build image') {
             steps {
                 script {
-                    echo "building image"
-                    buildImage()
+                    echo "building docker image..."
+                    buildImage(env.IMAGE_NAME)
+                    dockerLogin()
+                    dockerPush(env.IMAGE_NAME)
                 }
             }
         }
         stage("deploy") {
             steps {
                 script {
-                    echo "deploying"
-                    gv.deployApp()
+                    echo "deploying docker image to EC2..."
+                    def dockerCmd = "docker run -d -p 80:80 ${IMAGE_NAME}"
+                    sshagent(['ec2-server-key']){
+                        sh "ssh -o StrictHostKeyChecking=no ec2-user@13.126.109.116 ${dockerCmd}"    
+                    }
                 }
             }
         }
