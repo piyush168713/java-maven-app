@@ -1,0 +1,102 @@
+// L- 114 - Deploy newly build image to ec2 instance 
+
+// creating docker image of java-maven-app, push to docker hub and then go to ec2 instance and then login to docker hub,
+// pull the docker image to ec2 instance and then run.
+
+// Running docker-compose & update versioning
+// file connected - server-cmds-2, docker-compose.yaml
+// automatic version update of IMAGE_NAME
+
+// @Library('jenkins-shared-library')
+
+library identifier: 'jenkins-shared-library@groovy-class-2', retriever: modernSCM(
+    [$class: 'GitSCMSource',
+    remote: 'https://gitlab.com/piyush168713/jenkins-shared-library.git',
+    credentialsId: 'gitlab-credentials'
+    ]
+)
+
+pipeline {
+    agent any
+    tools {
+        maven 'maven-3.9'
+    }
+
+    // environment {
+    //     IMAGE_NAME = 'piyush168713/demo-app:java-maven-1.0'
+    // }
+
+    stages {
+        stage("increment version"){
+            steps{
+                script {
+                    echo 'increment app version...'
+                    sh 'mvn build-helper:parse-version versions:set \
+                        -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
+                        versions:commit'
+                    def matcher = readFile('pom.xml') =~ '<version>(.+)</version>'
+                    def version = matcher[0][1]
+                    env.IMAGE_NAME = "$version-$BUILD_NUMBER"
+                }
+            }
+        }
+        stage('build app') {
+            steps {
+                script {
+                    echo "building application jar..."
+                    buildJar()
+                }
+            }
+        }
+        stage('build image') {
+            steps {
+                script {
+                    echo "building docker image..."
+                    buildImage(env.IMAGE_NAME)
+                    dockerLogin()
+                    dockerPush(env.IMAGE_NAME)
+                }
+            }
+        }
+        stage("deploy") {
+            steps {
+                script {
+                    echo "deploying docker image to EC2..."
+
+                    // passing IMAGE_NAME as a parameter to server-cmds-2.sh file and server-cmd-2.sh uses as IMAGE and parameter is $1
+                    def shellCmd = "bash ./server-cmds-2.sh ${IMAGE_NAME}"
+
+                    // ec2-user@public-ip-of-ec2
+                    def ec2Instance = "ec2-user@13.126.109.116"
+
+                    sshagent(['ec2-server-key']){
+                        sh "scp server-cmds-2.sh ${ec2Instance}:/home/ec2-user"
+                        sh "scp docker-compose.yaml ${ec2Instance}:/home/ec2-user"
+                        sh "ssh -o StrictHostKeyChecking=no ${ec2Instance} ${shellCmd}"    
+                    }
+                }
+            }
+        }
+        stage('commit version update'){
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'gitlab-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                        // sh 'git config --global user.email "piyush@jenkins.com"'
+                        // sh 'git config --global user.name "jenkins"'
+
+                        // sh 'git status'
+                        // sh 'git branch'
+                        // sh 'git config --list'
+
+                        sh "git remote set-url origin https://${USER}:${PASS}@gitlab.com/piyush168713/java-maven-app.git"
+                        sh 'git add .'
+                        sh 'git commit -m "ci: version bump"'
+                        sh 'git push origin HEAD:ec2-aws-1 -f'
+                    }
+                }
+            }
+        }
+    }   
+}
+
+// copy the file to server so that these file directly executed on ec2. i.e. server-cmds-1.sh, docker-compose.yaml
