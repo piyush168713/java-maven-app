@@ -68,4 +68,7 @@ pipeline {
 // copy the file to server so that these file directly executed on ec2. i.e. server-cmds-1.sh, docker-compose.yaml
 
 // docker-compose file
-//  image: ${IMAGE}
+    //   # for jenkinsfile14 - but not working
+    //   # image: "piyush168713/demo-app:${IMAGE}"
+    //   # for jenkinsfile13 - up and working
+    //   # image: ${IMAGE}
