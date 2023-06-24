@@ -3,7 +3,6 @@
 // creating docker image of java-maven-app, push to docker hub and then go to ec2 instance and then login to docker hub,
 // pull the docker image to ec2 instance and then run.
 
-#!/usr/bin/env groovy
 // @Library('jenkins-shared-library')
 
 library identifier: 'jenkins-shared-library@groovy-class-2', retriever: modernSCM(
