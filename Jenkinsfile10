@@ -1,0 +1,51 @@
+// L- 112
+
+#!/usr/bin/env groovy
+// @Library('jenkins-shared-library')
+
+library identifier: 'jenkins-shared-library@groovy-class-2', retriever: modernSCM(
+    [$class: 'GitSCMSource',
+    remote: 'https://gitlab.com/piyush168713/jenkins-shared-library.git',
+    credentialsId: 'gitlab-credentials'
+    ]
+)
+
+pipeline {
+    agent any
+    tools {
+        maven 'maven-3.9'
+    }
+    stages {
+        stage("init") {
+            steps {
+                script {
+                    gv = load "script3.groovy"
+                }
+            }
+        }
+        stage("build jar") {
+            steps {
+                script {
+                    echo "building jar"
+                    buildJar()
+                }
+            }
+        }
+        stage("build image") {
+            steps {
+                script {
+                    echo "building image"
+                    buildImage()
+                }
+            }
+        }
+        stage("deploy") {
+            steps {
+                script {
+                    echo "deploying"
+                    gv.deployApp()
+                }
+            }
+        }
+    }   
+}
