@@ -37,5 +37,6 @@ pipeline {
 }
 
 // piyush168713/demo-app:6.0 - uses port 80 - use this one 
+// piyush168713/demo-app:react-nodejs-6.0 - uses port 80 - use this one 
 // piyush168713/demo-app:7.0 - uses port 3080 - but not working
 // and open the port you using from aws ec2 inbound rule
