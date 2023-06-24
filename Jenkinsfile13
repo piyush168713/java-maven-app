@@ -51,6 +51,7 @@ pipeline {
                     // passing IMAGE_NAME as a parameter to server-cmds-2.sh file and server-cmd-2.sh uses as IMAGE and parameter is $1
                     def shellCmd = "bash ./server-cmds-2.sh ${IMAGE_NAME}"
 
+                    // ec2-user@public-ip-of-ec2
                     def ec2Instance = "ec2-user@13.126.109.116"
 
                     sshagent(['ec2-server-key']){
