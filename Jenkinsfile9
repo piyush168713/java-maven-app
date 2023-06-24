@@ -21,7 +21,7 @@ pipeline {
 		stage('deploy'){
             steps {
                 script {
-                    def dockerCmd = 'docker run -p 80:80 -d piyush168713/demo-app:6.0'
+                    def dockerCmd = 'docker run -d -p 80:80 piyush168713/demo-app:6.0'
                     sshagent(['ec2-server-key']){
                         sh "ssh -o StrictHostKeyChecking=no ec2-user@13.126.109.116 ${dockerCmd}"    
                     }
