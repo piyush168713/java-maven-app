@@ -1,7 +1,7 @@
 version: '3.8'
 services:
     java-maven-app:
-      image: "piyush168713/demoapp:${IMAGE}"
+      image: "piyush168713/demoapp:${TAG}"
       ports:
         - 8080:8080
     postgres:
