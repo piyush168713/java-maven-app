@@ -51,10 +51,12 @@ pipeline {
                     // passing IMAGE_NAME as a parameter to server-cmds-2.sh file and server-cmd-2.sh uses as IMAGE and parameter is $1
                     def shellCmd = "bash ./server-cmds-2.sh ${IMAGE_NAME}"
 
+                    def ec2Instance = "ec2-user@13.126.109.116"
+
                     sshagent(['ec2-server-key']){
-                        sh "scp server-cmds-2.sh ec2-user@13.126.109.116:/home/ec2-user"
-                        sh "scp docker-compose.yaml ec2-user@13.126.109.116:/home/ec2-user"
-                        sh "ssh -o StrictHostKeyChecking=no ec2-user@13.126.109.116 ${shellCmd}"    
+                        sh "scp server-cmds-2.sh ${ec2Instance}:/home/ec2-user"
+                        sh "scp docker-compose.yaml ${ec2Instance}:/home/ec2-user"
+                        sh "ssh -o StrictHostKeyChecking=no ${ec2Instance} ${shellCmd}"    
                     }
                 }
             }
