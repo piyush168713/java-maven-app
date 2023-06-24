@@ -23,7 +23,8 @@ pipeline {
             steps {
                 script {
                     // just pulling the image from docker hub and run in ec2 docker container (react-nodejs-example)
-                    def dockerCmd = 'docker run -d -p 80:80 piyush168713/demo-app:6.0'
+                    def dockerCmd = 'docker run -d -p 80:80 piyush168713/demo-app:react-nodejs-6.0'
+                    // def dockerCmd = 'docker run -d -p 80:80 piyush168713/demo-app:6.0'
                     // def dockerCmd = 'docker run -d -p 3080:80 piyush168713/demo-app:6.0'
                     // def dockerCmd = 'docker run -d -p 3080:3080 piyush168713/demo-app:7.0'
                     sshagent(['ec2-server-key']){
