@@ -61,7 +61,7 @@
 
 #### Run the Docker image
 ```sh
-  docker run -d -p 8080:8080 username/repo-name:6.0
+  docker run -d -p 8080:8080 username/repo-name:java-maven-1.0
 ```
 
 Now open the port 8080 from EC2 instance inbound rule.
