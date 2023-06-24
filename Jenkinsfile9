@@ -1,6 +1,4 @@
 // L-112
-#!/usr/bin/env groovy
-
 pipeline {
 	agent any
 	stages {
