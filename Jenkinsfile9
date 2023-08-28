@@ -1,0 +1,82 @@
+// used in lecture 102 for integrating automatic software versioning
+// lecture till 103
+
+pipeline {
+    agent any
+    tools {
+        maven 'maven-3.9'
+    }
+    stages {
+        stage("increment version"){
+            steps{
+                script {
+                    echo 'increment app version...'
+                    sh 'mvn build-helper:parse-version versions:set \
+                        -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
+                        versions:commit'
+                    def matcher = readFile('pom.xml') =~ '<version>(.+)</version>'
+                    def version = matcher[0][1]
+                    env.IMAGE_NAME = "$version-$BUILD_NUMBER"
+                }
+            }
+        }
+
+        stage("build jar"){
+            steps {
+                script {
+                    echo "building the application..."
+                    sh 'mvn clean package'
+                }
+            }
+        }
+
+        stage("build image"){
+            steps {
+                script {
+                    echo "building the docker image..."
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                        sh "docker build -t piyush168713/demo-app:${IMAGE_NAME} ."
+                        sh "echo $PASS | docker login -u $USER --password-stdin"
+                        sh "docker push piyush168713/demo-app:${IMAGE_NAME}"
+                    }
+                }
+            }
+        }
+
+        stage('deploy') {
+            environment {
+               AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+               AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
+               APP_NAME = 'java-maven-app'
+            }
+            steps {
+                script {
+                   echo 'deploying docker image...'
+                   sh 'envsubst < kubernetes/deployment.yaml | kubectl apply -f -'
+                   sh 'envsubst < kubernetes/service.yaml | kubectl apply -f -'
+                }
+            }
+        }
+
+
+        stage('commit version update'){
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'gitlab-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                        // sh 'git config --global user.email "piyush@jenkins.com"'
+                        // sh 'git config --global user.name "jenkins"'
+
+                        // sh 'git status'
+                        // sh 'git branch'
+                        // sh 'git config --list'
+
+                        sh "git remote set-url origin https://${USER}:${PASS}@gitlab.com/piyush168713/java-maven-app.git"
+                        sh 'git add .'
+                        sh 'git commit -m "ci: version bump"'
+                        sh 'git push origin HEAD:jenkins-jobs -f'
+                    }
+                }
+            }
+        }
+    }
+}
