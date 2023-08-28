@@ -1,15 +1,24 @@
-// l-153
-// complete CI/CD pipeline with EKS and DockerHub Repository
+// l-154
 
-// Deploy to EKS k8s cluster using DockerHub Repo 
+// complete CI/CD pipeline with EKS and ECR
 
-// file used = /kubernetes/deployment.yaml & /kubernetes/service.yaml
+// Deploy to EKS k8s cluster using AWS ECR Docker Repo 
+
+// AWS ECR docker repo - 399434923446.dkr.ecr.ap-south-1.amazonaws.com/java-maven-app
+
+// file used = /kubernetes/deployment1.yaml & /kubernetes/service1.yaml
 
 pipeline {
     agent any
     tools {
         maven 'maven-3.9'
     }
+
+    environment{
+        AWS_DOCKER_REPO_SERVER = '399434923446.dkr.ecr.ap-south-1.amazonaws.com'
+        AWS_DOCKER_REPO = '${AWS_DOCKER_REPO_SERVER}/java-maven-app'
+    }
+
     stages {
         stage("increment version"){
             steps{
@@ -33,15 +42,19 @@ pipeline {
                 }
             }
         }
-
+ 
+        // take creds from ecr-credentials which is placed in Jenkins Credentials store and use in below line codes
+        // passing password as "echo $pass" (same as -> aws ecr get-login-password that is placed inside creds store)
+        // these steps are for pushing image to repo
+        // use k8s secrets file to store docker repo username and password for pulling image from repo
         stage("build image"){
             steps {
                 script {
                     echo "building the docker image..."
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                        sh "docker build -t piyush168713/demo-app:${IMAGE_NAME} ."
-                        sh "echo $PASS | docker login -u $USER --password-stdin"
-                        sh "docker push piyush168713/demo-app:${IMAGE_NAME}"
+                    withCredentials([usernamePassword(credentialsId: 'ecr-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                        sh "docker build -t ${AWS_DOCKER_REPO}:${IMAGE_NAME} ."
+                        sh "echo $PASS | docker login -u $USER --password-stdin ${AWS_DOCKER_REPO_SERVER}"
+                        sh "docker push ${AWS_DOCKER_REPO}:${IMAGE_NAME}"
                     }
                 }
             }
@@ -57,14 +70,14 @@ pipeline {
         // and when aws iam authenticator command get triggered in the background as a result it needs credentials to connect with the AWS account
         // so those two will be used (access key and secret access key) to authenticate that are set in env variable(Jenkinsfile10).
 
-        // we'll use aws dockerhub registry secret (my-registry-key)
+        // we'll use aws ecr registry secret (aws-registry-key)
         // when we execute this "kubectl apply" with the deployment yaml file and we set the new image name in deployment yaml file, kubernetes must be 
-        // allow to fetch the new image from the private (dockerhub) repository, so we need authentication with registry from inside k8s cluster.
+        // allow to fetch the new image from the private (AWS ECR) repository, so we need authentication with registry from inside k8s cluster.
         // we need to create Secret only once per namespace, we dont put secret in pipeline.
         // we'll create secret from our local machine when connected to eks cluster.
-        // and put imagePullSecrets in deployment file with name of secret (my-registry-key), everytime k8s check this config(deployment) file, it
+        // and put imagePullSecrets in deployment file with name of secret (aws-registry-key), everytime k8s check this config(deployment) file, it
         // see a private repo and image that have to fetch from there, it will needs the registry creds, so it will take from the secrets inorder to pull the image. 
-        // now deploy it using a new image version into the k8s cluster.
+        // now deploy it using a new image version into the k8s cluster. 
         stage('deploy') {
             environment {
                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -74,8 +87,8 @@ pipeline {
             steps {
                 script {
                    echo 'deploying docker image...'
-                   sh 'envsubst < kubernetes/deployment.yaml | kubectl apply -f -'
-                   sh 'envsubst < kubernetes/service.yaml | kubectl apply -f -'
+                   sh 'envsubst < kubernetes/deployment1.yaml | kubectl apply -f -'
+                   sh 'envsubst < kubernetes/service1.yaml | kubectl apply -f -'
                 }
             }
         }
