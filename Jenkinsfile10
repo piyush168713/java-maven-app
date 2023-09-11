@@ -2,7 +2,7 @@
 
 // complete CI/CD pipeline with EKS and ECR
 
-// Deploy to EKS k8s cluster using AWS ECR Docker Repo 
+// Deploy docker image to EKS k8s cluster using AWS ECR Docker Repo 
 
 // AWS ECR docker repo - 399434923446.dkr.ecr.ap-south-1.amazonaws.com/java-maven-app
 
