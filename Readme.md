@@ -59,8 +59,8 @@ the cluster with the help of config file.
 
 #### Deployment Stage
 
+```Jenkinsfile10```
 ```yaml
-    ```Jenkinsfile10```
         stage('deploy') {
             environment {
                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
