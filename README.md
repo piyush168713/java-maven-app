@@ -1,5 +1,6 @@
 # Run java-maven Docker image to AWS EC2 Instance
 
+<img src="images/flow-chart-ec2.png" alt="k8s" style="vertical-align:top;">
 
 ### Push image to Private Repository (Docker Hub)
 
