@@ -1,5 +1,7 @@
 # complete CI/CD pipeline with EKS and ECR
 
+<img src="images/flow-chart.png" alt="k8s" style="vertical-align:top;">
+
 ## Deploy docker image to EKS k8s cluster using AWS-ECR/DockerHub Docker Repo
 
 #### Creating EKS Cluster using eksctl
