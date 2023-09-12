@@ -57,6 +57,7 @@ the cluster with the help of config file.
       --docker-password=*** (get password from $ aws ecr get-login-password)
     ```
 
+#### Deployment Stage
 
 ```yaml
         stage('deploy') {
@@ -78,14 +79,15 @@ the cluster with the help of config file.
 This piece of code is basically say :-
 
 kubectl command executes which will use the kubeconfig.yaml which we placed inside jenkins container
-at location /$USER/.kube/ .
+at location ```/$USER/.kube/``` .
 and inside that config file it is configured that iam authenticator needs to be used in order to authenticate with the AWS account
 and when aws iam authenticator command get triggered in the background as a result it needs credentials to connect with the AWS account
 so those two will be used (access key and secret access key) to authenticate that are set in env variable(Jenkinsfile10).
 
-when we execute this "kubectl apply" with the deployment yaml file and we set the new image name in deployment yaml file(/kubernetes/deployment.yaml), 
+when we execute this ```kubectl apply``` with the deployment yaml file and we set the new image name in deployment yaml file
+(```/kubernetes/deployment.yaml```), 
 kubernetes must be allow to fetch the new image from the private (AWS ECR) repository, so we need authentication with the registry 
 from inside k8s cluster.
 we'll create secret from our local machine when connected to eks cluster.
-and put imagePullSecrets in deployment file with name of secret (aws-registry-key), everytime k8s check this config(deployment) file, 
+and put imagePullSecrets in deployment file with name of secret ```aws-registry-key```, everytime k8s check this config(deployment) file, 
 it see a private repo and image that have to fetch from there, it will needs the registry credentials, so it will take from the secrets inorder to pull the image. now deploy it using a new image version into the k8s cluster. 
