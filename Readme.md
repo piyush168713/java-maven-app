@@ -41,7 +41,7 @@ the cluster with the help of config file.
 - create secret for AWS ECR
     It uses when kubectl apply command executes to fetch images from inside k8s
 
-    - create secret for DockerHub secret
+    - create secret for DockerHub repository
     ```yaml
     $ kubectl create secret docker-registry aws-registry-key \
       --docker-server=docker.io \
@@ -60,6 +60,7 @@ the cluster with the help of config file.
 #### Deployment Stage
 
 ```yaml
+    ```Jenkinsfile10```
         stage('deploy') {
             environment {
                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
@@ -78,11 +79,11 @@ the cluster with the help of config file.
 
 This piece of code is basically say :-
 
-kubectl command executes which will use the kubeconfig.yaml which we placed inside jenkins container
+kubectl command executes which will use the ```kubeconfig.yaml``` which we placed inside jenkins container
 at location ```/$USER/.kube/``` .
 and inside that config file it is configured that iam authenticator needs to be used in order to authenticate with the AWS account
 and when aws iam authenticator command get triggered in the background as a result it needs credentials to connect with the AWS account
-so those two will be used (access key and secret access key) to authenticate that are set in env variable(Jenkinsfile10).
+so those two will be used (access key and secret access key) to authenticate that are set in env variable ```Jenkinsfile10```.
 
 when we execute this ```kubectl apply``` with the deployment yaml file and we set the new image name in deployment yaml file
 (```/kubernetes/deployment.yaml```), 
