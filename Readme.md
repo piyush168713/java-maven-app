@@ -31,9 +31,9 @@ the cluster with the help of config file.
 
 #### For pushing images
 - create AWS ECR Repo
-- create credentials in Jenkins
-        ```credentials -> global -> add creds -> username & password```
-        id - ecr-credentials \n
+- create credentials in Jenkins <br>
+        ```credentials -> global -> add creds -> username & password``` <br>
+        id - ecr-credentials <br>
         password - Get using this command $ aws ecr get-login-password
 - create secret for AWS ECR
 - Update jenkinsfile
